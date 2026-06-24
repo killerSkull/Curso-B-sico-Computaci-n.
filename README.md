@@ -62,4 +62,4 @@ No hay prisa. Una buena meta es **una lección por sesión** (entre 30 y 60 minu
 
 ---
 
-¿List@? Empieza por la [Lección 01](01-que-es-la-computacion.md). 🚀
+¿List@? Empieza por la [Lección 01](index.html). 🚀
