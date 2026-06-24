@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>La Belleza de la Computación · Curso Interactivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #060d1a;
+    --bg-2:      #0a1428;
+    --surface:   #0e1c34;
+    --surface-2: #13243f;
+    --border:    rgba(120,170,255,.12);
+    --border-lit:rgba(120,190,255,.30);
+    --ink:       #e9f1ff;
+    --ink-dim:   #93a8cc;
+    --ink-faint: #5e7398;
+    --accent:    #38bdf8;
+    --accent-2:  #2dd4bf;
+    --indigo:    #6366f1;
+    --good:      #34d399;
+    --good-bg:   rgba(52,211,153,.10);
+    --bad:       #fb7185;
+    --bad-bg:    rgba(251,113,133,.10);
+    --glow:      0 0 40px rgba(56,189,248,.18);
+    --grad:      linear-gradient(135deg,#38bdf8 0%,#6366f1 100%);
+    --grad-soft: linear-gradient(135deg,rgba(56,189,248,.16),rgba(99,102,241,.16));
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html,body{max-width:100%;overflow-x:clip}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overscroll-behavior-y:none;
+    touch-action:manipulation;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(1100px 700px at 80% -5%, rgba(99,102,241,.18), transparent 60%),
+      radial-gradient(900px 600px at 10% 5%, rgba(45,212,191,.10), transparent 55%),
+      radial-gradient(1000px 800px at 50% 110%, rgba(56,189,248,.12), transparent 60%),
+      var(--bg);
+  }
+
+  ::selection{background:rgba(56,189,248,.30);color:#fff}
+
+  a{color:var(--accent);text-decoration:none}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+    padding:clamp(2rem,6vw,5rem);
+    padding-top:max(clamp(2rem,6vw,5rem), env(safe-area-inset-top));
+    overflow:hidden;
+  }
+  #binary{position:absolute;inset:0;z-index:0;opacity:.55}
+  .hero-inner{position:relative;z-index:1;max-width:880px}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--accent-2);
+    margin-bottom:1.6rem;
+    display:inline-flex;align-items:center;gap:.7rem;
+  }
+  .eyebrow::before,.eyebrow::after{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--accent-2),transparent)}
+  .hero h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(2.4rem,7vw,5rem);
+    line-height:1.04;
+    letter-spacing:-.02em;
+    margin-bottom:1.5rem;
+  }
+  .hero h1 .mono{font-family:'JetBrains Mono',monospace;font-weight:500}
+  .grad-text{
+    background:var(--grad);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{
+    font-size:clamp(1.02rem,2vw,1.22rem);
+    color:var(--ink-dim);
+    max-width:620px;margin:0 auto 2.6rem;
+  }
+  .hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;align-items:center}
+  .btn{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1rem;
+    border:none;cursor:pointer;border-radius:999px;
+    padding:.92rem 2rem;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .25s;
+  }
+  .btn-primary{background:var(--grad);color:#04101f;box-shadow:var(--glow)}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 60px rgba(56,189,248,.42)}
+  .hero-meta{
+    margin-top:3rem;display:flex;gap:2.2rem;justify-content:center;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--ink-faint);
+    letter-spacing:.06em;
+  }
+  .hero-meta b{color:var(--ink);font-weight:500}
+  .scroll-hint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);z-index:1;color:var(--ink-faint);font-size:1.4rem;animation:bob 2.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{
+    max-width:1280px;margin:0 auto;padding:0 clamp(1rem,3vw,2rem) 6rem;
+    display:grid;grid-template-columns:300px minmax(0,1fr);gap:2.4rem;align-items:start;
+  }
+  .rail{position:sticky;top:1.4rem;align-self:start}
+  .rail-head{
+    display:flex;align-items:center;gap:1rem;
+    padding:1.2rem 1.3rem;margin-bottom:1rem;
+    background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  }
+  .ring{flex:0 0 auto}
+  .ring-label{font-family:'Space Grotesk',sans-serif;font-size:.82rem;color:var(--ink-dim);line-height:1.3}
+  .ring-label b{display:block;font-size:1.05rem;color:var(--ink);font-weight:600}
+
+  .lesson-nav{display:flex;flex-direction:column;gap:.4rem;list-style:none}
+  .nav-item{
+    display:flex;align-items:center;gap:.9rem;width:100%;text-align:left;
+    background:transparent;border:1px solid transparent;border-radius:13px;
+    padding:.7rem .85rem;cursor:pointer;color:var(--ink-dim);
+    font-family:'Inter',sans-serif;font-size:.92rem;
+    transition:background .2s,border-color .2s,color .2s,transform .2s;
+  }
+  .nav-item:hover{background:var(--surface);color:var(--ink);transform:translateX(3px)}
+  .nav-item.active{background:var(--grad-soft);border-color:var(--border-lit);color:var(--ink)}
+  .nav-num{
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:500;
+    width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;
+    border-radius:9px;background:rgba(120,170,255,.07);color:var(--ink-faint);
+    transition:background .2s,color .2s;
+  }
+  .nav-item.active .nav-num{background:var(--grad);color:#04101f}
+  .nav-item.done .nav-num{background:rgba(52,211,153,.16);color:var(--good)}
+  .nav-title{flex:1;line-height:1.25}
+  .nav-check{color:var(--good);font-size:.95rem;opacity:0}
+  .nav-item.done .nav-check{opacity:1}
+
+  /* ---------- CONTENT ---------- */
+  .stage{min-height:60vh;min-width:0}
+  .lesson{animation:rise .5s cubic-bezier(.2,.8,.2,1);min-width:0;overflow-wrap:break-word;width:100%}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+  .lesson-tag{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--accent-2);margin-bottom:.9rem;
+  }
+  .lesson h2{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08;letter-spacing:-.02em;
+    margin-bottom:1.4rem;
+  }
+  .lesson h3{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.28rem;
+    margin:2.4rem 0 .9rem;color:#fff;
+    display:flex;align-items:center;gap:.6rem;
+  }
+  .lesson h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--grad);box-shadow:0 0 12px var(--accent)}
+  .lesson p{color:var(--ink-dim);margin-bottom:1rem;max-width:68ch}
+  .lesson p strong,.lesson li strong{color:var(--ink);font-weight:600}
+  .lesson ul{margin:0 0 1.2rem;padding-left:0;list-style:none;max-width:68ch}
+  .lesson li{color:var(--ink-dim);margin-bottom:.55rem;padding-left:1.5rem;position:relative}
+  .lesson li::before{content:"";position:absolute;left:.2rem;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.7}
+  code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:rgba(120,170,255,.10);color:var(--accent);padding:.12em .45em;border-radius:6px;word-break:break-all}
+
+  .term{
+    display:flex;gap:1rem;align-items:flex-start;
+    background:var(--surface);border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    border-radius:14px;padding:1.05rem 1.25rem;margin:1.1rem 0;
+    max-width:68ch;
+  }
+  .term .k{font-size:1.15rem;line-height:1;flex:0 0 auto;margin-top:.1rem}
+  .term b{color:#fff;font-family:'Space Grotesk',sans-serif}
+  .term span{color:var(--ink-dim);display:block;font-size:.96rem}
+
+  .callout{
+    border-radius:14px;padding:1rem 1.25rem;margin:1.2rem 0;max-width:68ch;
+    font-size:.96rem;border:1px solid var(--border);
+  }
+  .callout.tip{background:var(--grad-soft);border-color:var(--border-lit)}
+  .callout.warn{background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.28)}
+  .callout b{color:#fff}
+  .callout.tip b{color:var(--accent-2)}
+  .callout.warn b{color:var(--bad)}
+
+  .analogy{
+    background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(45,212,191,.06));
+    border:1px dashed var(--border-lit);border-radius:14px;
+    padding:1.1rem 1.3rem;margin:1.2rem 0;max-width:68ch;color:var(--ink-dim);font-style:italic;
+  }
+  .analogy b{font-style:normal;color:var(--accent-2)}
+
+  .codeblock{
+    font-family:'JetBrains Mono',monospace;font-size:.84rem;line-height:1.7;
+    background:#040b16;border:1px solid var(--border);border-radius:14px;
+    padding:1.1rem 1.3rem;margin:1.2rem 0;max-width:68ch;color:#bcd4f5;
+    overflow-x:auto;white-space:pre;-webkit-overflow-scrolling:touch;
+  }
+  .codeblock .c{color:var(--ink-faint)}
+  .codeblock .a{color:var(--accent-2)}
+
+  .ctable{width:100%;max-width:68ch;border-collapse:collapse;margin:1.2rem 0;font-size:.92rem;border-radius:12px;overflow:hidden;border:1px solid var(--border);table-layout:auto}
+  .ctable th{background:var(--surface-2);color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;text-align:left;padding:.7rem .9rem;font-size:.86rem}
+  .ctable td{padding:.65rem .9rem;border-top:1px solid var(--border);color:var(--ink-dim)}
+  .ctable tr:nth-child(even) td{background:rgba(120,170,255,.03)}
+
+  /* ---------- QUIZ ---------- */
+  .quiz{
+    margin-top:3.5rem;padding-top:2.4rem;border-top:1px solid var(--border);
+  }
+  .quiz-head{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;margin-bottom:.4rem}
+  .quiz-head h3{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;color:#fff;margin:0}
+  .quiz-head h3::before{display:none}
+  .quiz-sub{color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.06em}
+  .quiz-progress{height:5px;border-radius:99px;background:rgba(120,170,255,.10);overflow:hidden;margin:1rem 0 2rem;max-width:68ch}
+  .quiz-progress i{display:block;height:100%;width:0;background:var(--grad);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+  .q{
+    background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:1.4rem 1.5rem;margin-bottom:1.3rem;max-width:68ch;
+  }
+  .q-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent-2);letter-spacing:.2em}
+  .q-text{font-family:'Space Grotesk',sans-serif;font-size:1.12rem;font-weight:500;color:#fff;margin:.45rem 0 1.1rem;line-height:1.4}
+  .opts{display:flex;flex-direction:column;gap:.6rem}
+  .opt{
+    display:flex;align-items:center;gap:.85rem;width:100%;text-align:left;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    padding:.8rem 1rem;cursor:pointer;color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:.97rem;
+    transition:border-color .2s,background .2s,transform .15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--border-lit);transform:translateX(3px)}
+  .opt:disabled{cursor:default}
+  .opt .mark{
+    width:26px;height:26px;flex:0 0 auto;border-radius:8px;display:grid;place-items:center;
+    background:rgba(120,170,255,.08);font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--ink-dim);
+    transition:background .2s,color .2s;
+  }
+  .opt.correct{border-color:var(--good);background:var(--good-bg)}
+  .opt.correct .mark{background:var(--good);color:#04101f}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+  .opt.wrong .mark{background:var(--bad);color:#fff}
+  .opt.dim{opacity:.5}
+  .explain{
+    margin-top:.95rem;padding:.85rem 1rem;border-radius:11px;font-size:.92rem;
+    background:rgba(56,189,248,.07);border:1px solid var(--border);color:var(--ink-dim);
+    display:none;
+  }
+  .explain.show{display:block;animation:rise .35s ease}
+  .explain b{color:var(--accent-2)}
+
+  .result{
+    display:none;margin-top:1.4rem;max-width:68ch;border-radius:18px;padding:1.6rem 1.7rem;
+    background:var(--grad-soft);border:1px solid var(--border-lit);text-align:center;
+  }
+  .result.show{display:block;animation:rise .5s ease}
+  .result .score{font-family:'Space Grotesk',sans-serif;font-size:2.6rem;font-weight:700;line-height:1}
+  .result .score small{font-size:1.1rem;color:var(--ink-faint);font-weight:400}
+  .result .msg{color:var(--ink);margin:.5rem 0 1.2rem;font-size:1.05rem}
+  .result-actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+  .btn-ghost{background:transparent;border:1px solid var(--border-lit);color:var(--ink)}
+  .btn-ghost:hover{background:var(--surface);transform:translateY(-2px)}
+  .btn-sm{padding:.7rem 1.4rem;font-size:.92rem}
+
+  .pager{display:flex;justify-content:space-between;gap:1rem;margin-top:2.6rem;max-width:68ch}
+  .pager button{font-family:'Space Grotesk',sans-serif;font-weight:500}
+  .pager .btn-ghost[disabled]{opacity:.3;cursor:default}
+
+  /* ---------- RESPONSIVE ---------- */
+  /* Tablas siempre desplazables en horizontal: nunca rompen el ancho de la página */
+  .twrap{max-width:68ch;margin:1.2rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+  .twrap .ctable{margin:0;min-width:340px}
+
+  @media(max-width:880px){
+    .shell{grid-template-columns:minmax(0,1fr);gap:1.2rem;padding-top:1rem;overflow-x:clip}
+    .rail{position:static;top:auto}
+    .rail-head{margin-bottom:.7rem}
+    .lesson-nav{
+      flex-direction:row;overflow-x:auto;gap:.5rem;
+      padding:.2rem .2rem .7rem;scroll-snap-type:x proximity;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    }
+    .lesson-nav::-webkit-scrollbar{display:none}
+    .nav-item{flex:0 0 auto;min-width:150px;scroll-snap-align:start}
+    .nav-item:hover{transform:none}
+    .nav-title{font-size:.82rem}
+    .stage{min-height:auto;min-width:0;width:100%}
+    .quiz{margin-top:2.6rem}
+    .lesson p,.lesson ul,.term,.callout,.analogy,.codeblock,.twrap,.q,.result,.pager,.quiz-progress{max-width:100%}
+  }
+
+  @media(max-width:560px){
+    .shell{padding:0 .85rem 4rem}
+    .term{flex-direction:row}
+    .hero-meta{gap:1.1rem;font-size:.72rem}
+    .lesson h2{font-size:clamp(1.6rem,7vw,2rem)}
+    .codeblock{font-size:.76rem;padding:.9rem 1rem}
+    .q{padding:1.1rem 1.1rem}
+    .q-text{font-size:1.04rem}
+    .opt{padding:.85rem .9rem}
+    .opt span:last-child{word-break:break-word}
+    .pager{flex-wrap:wrap}
+    .pager .btn{flex:1 1 46%;text-align:center}
+    .result{padding:1.3rem 1.1rem}
+    .term{padding:.9rem 1rem}
+    .callout{padding:.9rem 1rem}
+    .analogy{padding:.9rem 1rem}
+    .hero-cta .btn{width:100%}
+  }
+
+  @media(max-width:380px){
+    .shell{padding:0 .7rem 3.5rem}
+    .hero h1{font-size:2.1rem}
+    .hero{padding:clamp(2rem,6vw,5rem) 1.2rem}
+    .lede{font-size:1rem}
+    .term{flex-direction:column;gap:.5rem}
+    .nav-item{min-width:138px}
+    .codeblock{font-size:.72rem;padding:.75rem .85rem;border-radius:10px}
+    .q{padding:.9rem .9rem}
+    .opt{padding:.75rem .8rem;font-size:.9rem;gap:.6rem}
+    .opt .mark{width:24px;height:24px;font-size:.72rem}
+    .result .score{font-size:2.2rem}
+    .result .msg{font-size:.95rem}
+    .btn-sm{padding:.6rem 1rem;font-size:.85rem}
+  }
+
+  /* Objetivos de toque cómodos (mínimo ~44px) en pantallas táctiles */
+  @media(hover:none){
+    .opt{min-height:48px}
+    .nav-item{min-height:46px}
+    .btn{min-height:46px}
+    .opt:hover:not(:disabled),.nav-item:hover{transform:none}
+  }
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <canvas id="binary"></canvas>
+  <div class="hero-inner">
+    <div class="eyebrow">Curso interactivo · De cero a nivel medio</div>
+    <h1>Todo lo que ves nace de un <span class="mono grad-text">0</span> y un <span class="mono grad-text">1</span></h1>
+    <p class="lede">Detrás de cada foto, canción y mensaje hay lógica pura y elegante. Aprende computación desde lo más básico, paso a paso, y descubre la belleza que se esconde dentro de la máquina.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="start()">Empezar a aprender</button>
+    </div>
+    <div class="hero-meta">
+      <span><b>9</b> lecciones</span>
+      <span><b>45</b> preguntas</span>
+      <span><b>0</b> conocimientos previos</span>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</header>
+
+<!-- ============ APP ============ -->
+<div class="shell" id="app">
+  <aside class="rail">
+    <div class="rail-head">
+      <svg class="ring" width="56" height="56" viewBox="0 0 56 56">
+        <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(120,170,255,.12)" stroke-width="5"/>
+        <circle id="ringFill" cx="28" cy="28" r="24" fill="none" stroke="url(#g)" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8"
+                transform="rotate(-90 28 28)"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#6366f1"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="ring-label"><b id="ringTxt">0 / 9</b>lecciones completas</div>
+    </div>
+    <ul class="lesson-nav" id="nav"></ul>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+
+<script>
+/* ============================================================
+   CONTENIDO DEL CURSO
+   ============================================================ */
+const LESSONS = [
+{
+  num:"01", level:"Básico", title:"¿Qué es la computación?",
+  body:`
+    <p>Una <strong>computadora</strong> es una máquina que recibe información, la procesa siguiendo instrucciones y devuelve un resultado. Suena complejo, pero tú lo haces todo el tiempo. Piensa en una calculadora: escribes <code>5 + 3</code>, ella suma, y te muestra <code>8</code>.</p>
+    <h3>El patrón de toda máquina</h3>
+    <p>Sin excepción, toda computadora sigue el mismo ciclo:</p>
+    <div class="codeblock"><span class="a">ENTRADA</span>  →  <span class="a">PROCESO</span>  →  <span class="a">SALIDA</span>
+<span class="c">(lo que le das)   (cómo lo piensa)   (lo que devuelve)</span></div>
+    <div class="term"><span class="k">🔑</span><div><b>Entrada (input)</b><span>Los datos que le das: un toque, tu voz, una foto, lo que escribes.</span></div></div>
+    <div class="term"><span class="k">🔑</span><div><b>Salida (output)</b><span>El resultado que te devuelve: algo en pantalla, un sonido, una impresión.</span></div></div>
+    <h3>Datos vs. información</h3>
+    <p>No son lo mismo, y entender la diferencia ayuda mucho. Un <strong>dato</strong> es un hecho suelto sin contexto (el número <code>38</code>). La <strong>información</strong> son datos con significado ("tu temperatura es 38 °C, tienes fiebre").</p>
+    <div class="term"><span class="k">🔑</span><div><b>Programa</b><span>Un conjunto de instrucciones ordenadas que le dicen a la computadora qué hacer. Es como una receta de cocina: pasos en orden que producen un resultado.</span></div></div>
+    <div class="callout tip"><b>Idea clave</b> · Una computadora es <em>cualquier</em> máquina que procesa datos siguiendo instrucciones: tu celular, un smartwatch, una consola e incluso un carro moderno lo son.</div>
+  `,
+  quiz:[
+    {q:"¿Cuál es el patrón fundamental que sigue toda computadora?",o:["Salida → entrada → proceso","Entrada → proceso → salida","Proceso → datos → memoria","Encender → guardar → apagar"],c:1,e:"Toda computadora recibe datos (entrada), los transforma (proceso) y devuelve un resultado (salida)."},
+    {q:"El número «38» por sí solo, sin nada más, es...",o:["Información","Un programa","Un dato","Una salida"],c:2,e:"Un hecho suelto y sin contexto es un dato. Se vuelve información cuando adquiere significado."},
+    {q:"¿Qué es un programa?",o:["Una pieza física de la computadora","Un conjunto de instrucciones ordenadas","Un tipo de pantalla","La electricidad del enchufe"],c:1,e:"Un programa es una lista de instrucciones en orden, como una receta que la máquina sigue."},
+    {q:"Al tomar una foto, la luz que entra por la cámara es...",o:["La salida","El proceso","La entrada","El programa"],c:2,e:"La luz es el dato que entra (entrada); convertirla en imagen es el proceso; la foto guardada es la salida."},
+    {q:"«Tu próxima clase es el lunes a las 9 a. m.» es un ejemplo de...",o:["Un dato suelto","Información","Hardware","Una salida de audio"],c:1,e:"Son datos organizados con significado, por lo tanto información."}
+  ]
+},
+{
+  num:"02", level:"Básico", title:"El hardware",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Hardware</b><span>Todo lo físico de la computadora, lo que puedes tocar: pantalla, teclado, cables y las piezas internas. «Hard» = duro: la parte tangible.</span></div></div>
+    <h3>Los componentes, como una oficina</h3>
+    <p>El <strong>CPU</strong> es el cerebro: el empleado que hace todo el trabajo y los cálculos. La <strong>RAM</strong> es su escritorio: ahí pone lo que usa <em>ahora mismo</em>. El <strong>almacenamiento</strong> es el archivero: guarda todo a largo plazo.</p>
+    <div class="term"><span class="k">🧠</span><div><b>CPU</b><span>Unidad Central de Procesamiento. El cerebro que ejecuta las instrucciones. Su velocidad se mide en GHz.</span></div></div>
+    <h3>RAM vs. Almacenamiento (el error más común)</h3>
+    <table class="ctable"><thead><tr><th></th><th>RAM</th><th>Almacenamiento</th></tr></thead><tbody>
+      <tr><td>Guarda</td><td>Lo que usas ahora</td><td>Todo a largo plazo</td></tr>
+      <tr><td>Al apagar</td><td>Se borra</td><td>No se borra</td></tr>
+      <tr><td>Analogía</td><td>Escritorio</td><td>Archivero</td></tr>
+    </tbody></table>
+    <div class="callout warn"><b>Ojo</b> · Cuando la computadora va lenta con muchos programas abiertos, casi siempre le falta <strong>RAM</strong>, no almacenamiento.</div>
+    <h3>Unidades de medida</h3>
+    <p>Todo se mide en <strong>bytes</strong> (1 byte ≈ una letra). La escala sube de mil en mil:</p>
+    <div class="codeblock">1 KB ≈ un párrafo
+1 MB ≈ una foto
+<span class="a">1 GB ≈ 1000 MB</span> ≈ una película
+1 TB ≈ 1000 GB ≈ cientos de películas</div>
+    <p>Los <strong>periféricos</strong> meten o sacan información: el teclado y el micrófono son de <em>entrada</em>; el monitor y las bocinas, de <em>salida</em>.</p>
+  `,
+  quiz:[
+    {q:"¿Qué componente es el «cerebro» que hace los cálculos?",o:["La RAM","El CPU","El disco duro","La pantalla"],c:1,e:"El CPU (Unidad Central de Procesamiento) ejecuta las instrucciones y hace los cálculos."},
+    {q:"¿Qué tipo de memoria se borra al apagar la computadora?",o:["El almacenamiento","El disco duro","La RAM","La placa madre"],c:2,e:"La RAM es temporal y rápida: guarda lo que usas ahora y se vacía al apagar."},
+    {q:"En la analogía de la oficina, la RAM es...",o:["El archivero","El escritorio","El edificio","La electricidad"],c:1,e:"La RAM es el escritorio: ahí pones los papeles que usas en este momento."},
+    {q:"1 Gigabyte (GB) equivale aproximadamente a...",o:["1000 KB","10 MB","1000 MB","1 byte"],c:2,e:"La escala sube de mil en mil: 1 GB ≈ 1000 MB."},
+    {q:"¿Cuál de estos es un dispositivo de ENTRADA?",o:["El monitor","Las bocinas","El micrófono","La impresora"],c:2,e:"El micrófono mete datos (sonido). Monitor, bocinas e impresora son de salida."}
+  ]
+},
+{
+  num:"03", level:"Básico", title:"Software y sistemas operativos",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Software</b><span>Todos los programas e instrucciones. La parte que <em>no</em> puedes tocar, lo contrario del hardware.</span></div></div>
+    <p>Si el hardware es el cuerpo, el software es lo que ese cuerpo <em>sabe hacer</em>. Otra forma de verlo: el hardware es el reproductor; el software, la música.</p>
+    <h3>El sistema operativo: el jefe</h3>
+    <div class="term"><span class="k">🔑</span><div><b>Sistema operativo (SO)</b><span>El programa principal que controla toda la computadora: administra el hardware, organiza los archivos y permite que los demás programas funcionen.</span></div></div>
+    <div class="analogy"><b>Como un gerente de restaurante:</b> tú pides un platillo (abres un programa), y él coordina la cocina (hardware) sin que tengas que saber cómo se organiza todo por dentro.</div>
+    <p>Los más usados: <strong>Windows, macOS y Linux</strong> en computadoras; <strong>Android e iOS</strong> en móviles. Dato curioso: Android está basado en Linux.</p>
+    <h3>Las capas del sistema</h3>
+    <div class="codeblock">       TÚ (usuario)
+          ↓
+   <span class="a">APLICACIÓN</span>      WhatsApp, Word, juegos
+          ↓
+   <span class="a">SISTEMA OPERATIVO</span>   Windows, Android, Linux
+          ↓
+   <span class="a">HARDWARE</span>      CPU, RAM, pantalla</div>
+    <div class="term"><span class="k">🔌</span><div><b>Controlador (driver)</b><span>Un pequeño programa que le enseña al sistema operativo a comunicarse con un aparato específico, como una impresora.</span></div></div>
+    <div class="callout warn"><b>Seguridad</b> · Descarga programas solo de sitios y tiendas oficiales. Lo «gratis pirateado» suele traer virus.</div>
+  `,
+  quiz:[
+    {q:"¿Qué es el sistema operativo?",o:["Una pieza física dentro del CPU","El programa principal que controla toda la computadora","Un tipo de cable","Un dispositivo de entrada"],c:1,e:"El SO es el «jefe»: administra el hardware y permite que los demás programas funcionen."},
+    {q:"¿Cuál de estos es software de APLICACIÓN?",o:["Windows","Spotify","Un driver de impresora","Android"],c:1,e:"Spotify es una app para una tarea concreta. Windows, Android y los drivers son software de sistema."},
+    {q:"El sistema operativo Android está basado en...",o:["Windows","macOS","Linux","iOS"],c:2,e:"Android se construye sobre Linux, así que millones de personas usan Linux sin saberlo."},
+    {q:"Un «driver» o controlador sirve para...",o:["Navegar por internet","Que el SO sepa comunicarse con un aparato","Guardar fotos","Acelerar el CPU"],c:1,e:"Es el programa que traduce entre el sistema operativo y un dispositivo concreto."},
+    {q:"¿Cuál es el orden correcto de las capas, de arriba (tú) hacia abajo?",o:["Hardware → SO → App → Usuario","Usuario → App → SO → Hardware","App → Usuario → Hardware → SO","SO → Hardware → Usuario → App"],c:1,e:"Tú hablas con las apps, las apps con el SO, y el SO controla el hardware."}
+  ]
+},
+{
+  num:"04", level:"Básico", title:"Archivos y carpetas",
+  body:`
+    <p>Un <strong>archivo</strong> es información guardada con un nombre (una foto, un documento). Una <strong>carpeta</strong> (o directorio) los agrupa, y puede contener otras carpetas formando un árbol ordenado.</p>
+    <div class="codeblock">📁 Documentos
+   ├── 📁 Trabajo
+   │     └── 📄 informe.docx
+   └── 📄 lista.txt</div>
+    <h3>La extensión: el «apellido» del archivo</h3>
+    <div class="term"><span class="k">🔑</span><div><b>Extensión</b><span>Las letras tras el punto (<code>.jpg</code>, <code>.docx</code>). Le dicen a la computadora qué tipo de archivo es y con qué programa abrirlo.</span></div></div>
+    <table class="ctable"><thead><tr><th>Extensión</th><th>Tipo</th></tr></thead><tbody>
+      <tr><td><code>.jpg</code> / <code>.png</code></td><td>Imagen</td></tr>
+      <tr><td><code>.mp3</code></td><td>Audio</td></tr>
+      <tr><td><code>.docx</code></td><td>Documento</td></tr>
+      <tr><td><code>.exe</code></td><td>Programa (Windows)</td></tr>
+    </tbody></table>
+    <div class="callout warn"><b>Cuidado</b> · Un <code>.exe</code> es un programa que se ejecuta. Nunca abras uno que llegue por correo de un desconocido.</div>
+    <h3>La ruta: la dirección del archivo</h3>
+    <div class="term"><span class="k">🔑</span><div><b>Ruta (path)</b><span>El camino completo para llegar a un archivo, carpeta por carpeta, como una dirección postal:</span></div></div>
+    <div class="codeblock">C:\\Usuarios\\Maria\\Documentos\\<span class="a">informe.docx</span></div>
+    <h3>Copiar vs. Cortar</h3>
+    <p><strong>Copiar</strong> deja el original y crea un duplicado. <strong>Cortar</strong> <em>mueve</em> el archivo (lo quita de un lugar y lo lleva a otro). Lo eliminado va a la <strong>papelera</strong>, por si te arrepientes.</p>
+  `,
+  quiz:[
+    {q:"La extensión «.jpg» indica que el archivo es...",o:["Un programa","Una imagen","Un documento de texto","Una canción"],c:1,e:"La extensión indica el tipo: .jpg es una imagen."},
+    {q:"¿Cuál es la diferencia entre «cortar» y «copiar»?",o:["Son exactamente lo mismo","Cortar mueve el archivo; copiar deja el original","Copiar borra el archivo","Cortar imprime el archivo"],c:1,e:"Copiar duplica (deja el original); cortar mueve (lo quita de su sitio)."},
+    {q:"Una «ruta» (path) es...",o:["El tamaño de un archivo","El camino completo para llegar a un archivo","El color de la carpeta","Un tipo de virus"],c:1,e:"La ruta es la dirección del archivo, carpeta por carpeta."},
+    {q:"¿Qué extensión corresponde a un programa ejecutable que conviene tratar con cuidado?",o:[".txt",".png",".exe",".mp3"],c:2,e:"Un .exe se ejecuta directamente; es una vía común de infección si viene de fuentes dudosas."},
+    {q:"Cuando eliminas un archivo, ¿a dónde va primero?",o:["Desaparece para siempre","A la papelera de reciclaje","A internet","A la RAM"],c:1,e:"Va a la papelera por si te arrepientes; solo se borra de verdad al vaciarla."}
+  ]
+},
+{
+  num:"05", level:"Básico", title:"Internet y navegación",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Internet</b><span>Una red gigante de computadoras conectadas en todo el mundo. Una «red de redes».</span></div></div>
+    <h3>Cliente y servidor</h3>
+    <p>Cuando pides una página, tu dispositivo (el <strong>cliente</strong>) le manda un mensaje a un <strong>servidor</strong> (una computadora siempre encendida que guarda la información) y este te la envía de vuelta.</p>
+    <div class="codeblock">TÚ (cliente) ── "quiero esta página" ──► <span class="a">SERVIDOR</span>
+TÚ (cliente) ◄── "aquí la tienes" ──────  <span class="a">SERVIDOR</span></div>
+    <h3>Internet NO es lo mismo que la web</h3>
+    <div class="analogy"><b>Piénsalo así:</b> internet es la red de carreteras; la web (las páginas que ves en el navegador) es uno de los muchos vehículos que circulan por ella. El correo, las videollamadas y el streaming también usan internet, pero no son «la web».</div>
+    <h3>Leer una dirección (URL)</h3>
+    <div class="codeblock"><span class="a">https://</span>www.wikipedia.org<span class="c">/wiki/Computadora</span>
+  protocolo    dominio        ruta</div>
+    <div class="term"><span class="k">🔒</span><div><b>HTTPS</b><span>El candado de seguridad. La «s» significa <em>seguro</em>: los datos viajan cifrados para que nadie en el camino pueda leerlos.</span></div></div>
+    <div class="callout warn"><b>Anti-estafas</b> · Desconfía de mensajes con prisa («¡tu cuenta se cierra YA!») y revisa el dominio: <code>paypa1.com</code> no es <code>paypal.com</code>.</div>
+  `,
+  quiz:[
+    {q:"¿Cuál de estas afirmaciones es correcta?",o:["Internet y la web son exactamente lo mismo","La web es uno de los servicios que funcionan sobre internet","El correo no usa internet","Internet es un navegador"],c:1,e:"Internet es la red (las carreteras); la web es solo uno de los servicios que circulan por ella."},
+    {q:"¿Qué es un servidor?",o:["Tu teléfono personal","Una computadora siempre encendida que guarda y envía información","Un tipo de cable","Un virus"],c:1,e:"El servidor responde a las peticiones del cliente enviándole la información."},
+    {q:"En «https://», ¿qué significa la «s»?",o:["Servidor","Sistema","Seguro (conexión cifrada)","Streaming"],c:2,e:"La «s» indica que la conexión es segura: los datos viajan cifrados."},
+    {q:"En la URL «https://www.youtube.com/watch», el dominio es...",o:["https","/watch","youtube.com","www"],c:2,e:"El dominio es el nombre del sitio: youtube.com."},
+    {q:"¿Cuál es una señal típica de phishing (estafa)?",o:["Un correo sin prisa que no pide datos","Te meten urgencia y te piden tu contraseña","Una página con candado https","Un buscador conocido"],c:1,e:"Urgencia + pedir datos sensibles como la contraseña es la combinación clásica del phishing."}
+  ]
+},
+{
+  num:"06", level:"Básico-Medio", title:"Ofimática",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Ofimática</b><span>Los programas de oficina: procesador de texto, hoja de cálculo y presentaciones. Mezcla «oficina» + «informática».</span></div></div>
+    <p>Hay alternativas gratuitas excelentes: <strong>Google Docs/Sheets/Slides</strong> (en el navegador) y <strong>LibreOffice</strong> (instalado). Se usan casi igual que Microsoft Office.</p>
+    <h3>El atajo que vale oro</h3>
+    <div class="callout tip"><b>Ctrl + Z</b> · Deshace tu último error. Memorízalo hoy: te va a salvar cientos de veces. (Ctrl+C copiar, Ctrl+V pegar, Ctrl+X cortar.)</div>
+    <h3>La hoja de cálculo: una cuadrícula de celdas</h3>
+    <p>Las columnas son letras y las filas, números. La <strong>celda</strong> <code>B3</code> está en la columna B, fila 3 (como en «Batalla naval»).</p>
+    <h3>La magia: las fórmulas</h3>
+    <div class="term"><span class="k">🔑</span><div><b>Fórmula</b><span>Una instrucción que empieza con <code>=</code> y hace que la celda <em>calcule</em> en lugar de mostrar texto fijo.</span></div></div>
+    <div class="codeblock"><span class="a">=B2*C2</span>        multiplica precio por cantidad
+<span class="a">=SUMA(D2:D4)</span>   suma todo el rango de D2 a D4</div>
+    <div class="callout tip"><b>El «ajá»</b> · Escribes la fórmula <em>una sola vez</em>. Si cambias un dato, el resultado se recalcula solo. Por eso son perfectas para presupuestos.</div>
+    <p>En las <strong>presentaciones</strong>, la regla de oro es <em>poco texto por diapositiva</em>: ideas clave e imágenes, no párrafos. Tú das los detalles hablando.</p>
+  `,
+  quiz:[
+    {q:"En una hoja de cálculo, toda fórmula empieza con el signo...",o:["+","=","#","@"],c:1,e:"El signo = le dice a la celda que calcule en vez de mostrar texto."},
+    {q:"La celda «B3» se encuentra en...",o:["Fila B, columna 3","Columna B, fila 3","La tercera hoja","La barra de herramientas"],c:1,e:"Columna (letra) primero, fila (número) después: columna B, fila 3."},
+    {q:"¿Qué atajo de teclado DESHACE tu última acción?",o:["Ctrl + Z","Ctrl + P","Ctrl + S","Ctrl + A"],c:0,e:"Ctrl + Z deshace; es uno de los atajos más útiles que existen."},
+    {q:"¿Por qué son tan poderosas las hojas de cálculo?",o:["Porque imprimen más rápido","Porque recalculan los resultados solas al cambiar los datos","Porque reproducen música","Porque navegan por internet"],c:1,e:"Escribes la fórmula una vez y se actualiza automáticamente cuando cambian los datos."},
+    {q:"La fórmula «=SUMA(C2:C4)» hace...",o:["Resta C4 menos C2","Suma las celdas desde C2 hasta C4","Multiplica C2 por C4","Borra el rango"],c:1,e:"SUMA suma todo el rango indicado, de C2 a C4 inclusive."}
+  ]
+},
+{
+  num:"07", level:"Medio", title:"Seguridad informática",
+  body:`
+    <h3>Contraseñas: tu primera defensa</h3>
+    <p>Una buena contraseña es <strong>larga</strong> y difícil de adivinar. La longitud importa más que los símbolos raros: <code>Caballo-Azul-Taza-7Lunas</code> es más segura y más fácil de recordar que <code>Xk9$2!</code>.</p>
+    <div class="callout tip"><b>Reglas de oro</b> · Una contraseña distinta por cuenta importante, usa un gestor de contraseñas, y activa la verificación en dos pasos.</div>
+    <div class="term"><span class="k">🔑</span><div><b>Verificación en dos pasos (2FA)</b><span>Una capa extra: además de la contraseña, pide un segundo dato (un código a tu celular). Aunque roben tu clave, no entran sin tu teléfono.</span></div></div>
+    <h3>Malware: el software malicioso</h3>
+    <table class="ctable"><thead><tr><th>Tipo</th><th>Qué hace</th></tr></thead><tbody>
+      <tr><td>Virus</td><td>Se copia e infecta archivos</td></tr>
+      <tr><td>Troyano</td><td>Se disfraza de programa útil</td></tr>
+      <tr><td>Ransomware</td><td>Secuestra tus archivos y pide dinero</td></tr>
+      <tr><td>Spyware</td><td>Te espía en secreto</td></tr>
+    </tbody></table>
+    <h3>Phishing</h3>
+    <div class="term"><span class="k">🎣</span><div><b>Phishing</b><span>Un engaño donde alguien se hace pasar por una entidad de confianza (tu banco) para que tú mismo le des tus datos. Te lanzan un anzuelo a ver si «picas».</span></div></div>
+    <div class="callout warn"><b>Regla de oro</b> · Ante la duda, NO hagas clic. Entra tú directamente al sitio oficial o llama por el número real. Tu banco jamás te pide la contraseña por correo.</div>
+    <p>Y haz <strong>copias de seguridad (backups)</strong> de lo importante: una copia extra en otro lugar te salva si pierdes, te roban o infectan tu equipo.</p>
+  `,
+  quiz:[
+    {q:"¿Qué hace MÁS fuerte a una contraseña?",o:["Que sea corta y con símbolos","Que sea larga y difícil de adivinar","Que sea tu nombre y tu año","Que sea «123456»"],c:1,e:"La longitud es lo que más cuesta de romper; una frase larga supera a un código corto y raro."},
+    {q:"El ransomware es un malware que...",o:["Solo muestra anuncios","Secuestra tus archivos y pide dinero para devolverlos","Acelera tu computadora","Limpia virus"],c:1,e:"Ransomware viene de «ransom» (rescate): cifra tus archivos y exige un pago."},
+    {q:"La verificación en dos pasos (2FA) consiste en...",o:["Tener dos contraseñas iguales","Pedir un segundo dato además de la contraseña","Reiniciar dos veces","Usar dos navegadores"],c:1,e:"Añade una segunda comprobación, normalmente un código en tu celular."},
+    {q:"Si tu «banco» te escribe con urgencia pidiendo tu contraseña, lo mejor es...",o:["Responder rápido con los datos","Hacer clic en el enlace del mensaje","No hacer clic y entrar tú al sitio oficial","Reenviarlo a un amigo"],c:2,e:"Es la táctica del phishing. Verifica entrando tú mismo al sitio o app oficial; el banco nunca pide la clave así."},
+    {q:"¿Para qué sirve una copia de seguridad (backup)?",o:["Para que la computadora vaya más rápido","Para recuperar tus datos si los pierdes o te los roban","Para tener más RAM","Para navegar más rápido"],c:1,e:"Un backup es una copia extra en otro lugar que te permite recuperar todo ante un desastre."}
+  ]
+},
+{
+  num:"08", level:"Medio", title:"Introducción a la terminal",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Terminal (consola)</b><span>Una forma de usar la computadora escribiendo órdenes de texto en vez de hacer clic. Le escribes un comando, presionas Enter y se ejecuta.</span></div></div>
+    <p>Hasta ahora usaste la <strong>interfaz gráfica</strong> (ventanas, íconos, mouse). La terminal es lo contrario: solo texto. Parece incómoda, pero es más rápida, permite automatizar y la usan todos los programadores.</p>
+    <h3>Comandos seguros para empezar</h3>
+    <table class="ctable"><thead><tr><th>Quiero...</th><th>Windows</th><th>Mac / Linux</th></tr></thead><tbody>
+      <tr><td>Ver dónde estoy</td><td><code>cd</code></td><td><code>pwd</code></td></tr>
+      <tr><td>Listar archivos</td><td><code>dir</code></td><td><code>ls</code></td></tr>
+      <tr><td>Entrar a una carpeta</td><td colspan="2"><code>cd nombre</code></td></tr>
+      <tr><td>Volver atrás</td><td colspan="2"><code>cd ..</code></td></tr>
+    </tbody></table>
+    <div class="term"><span class="k">📂</span><div><b>cd ..</b><span>«cd» es <em>change directory</em> (cambiar de carpeta). Los dos puntos significan «la carpeta de arriba», así que <code>cd ..</code> es como el botón «atrás».</span></div></div>
+    <h3>Trucos para sentirte cómodo</h3>
+    <p>La <strong>flecha arriba</strong> repite el último comando. La tecla <strong>Tab</strong> autocompleta nombres: escribe <code>cd Docu</code>, pulsa Tab y se completa solo.</p>
+    <div class="callout warn"><b>Regla de seguridad #1</b> · Nunca copies y pegues un comando de internet sin entender qué hace. Los de «mirar y moverte» son seguros; algunos de borrar eliminan sin preguntar.</div>
+  `,
+  quiz:[
+    {q:"¿Qué es la terminal?",o:["Una pantalla rota","Usar la computadora escribiendo comandos de texto","Un tipo de virus","La pantalla de inicio de Windows"],c:1,e:"La terminal permite dar órdenes escritas en vez de hacer clic con el mouse."},
+    {q:"En Mac o Linux, ¿qué comando LISTA los archivos de una carpeta?",o:["dir","ls","list","show"],c:1,e:"En Mac/Linux se usa «ls»; en Windows, «dir»."},
+    {q:"El comando «cd ..» hace que...",o:["Borres la carpeta","Subas a la carpeta de arriba","Apagues el equipo","Crees un archivo"],c:1,e:"Los «..» significan la carpeta superior; cd .. es como el botón «atrás»."},
+    {q:"¿Qué tecla AUTOCOMPLETA los nombres en la terminal?",o:["Enter","Tab","Espacio","Esc"],c:1,e:"Tab completa nombres de carpetas y archivos, evitando errores de tecleo."},
+    {q:"¿Cuál es la regla de seguridad #1 de la terminal?",o:["Escribir comandos muy rápido","Apagar al terminar","No ejecutar comandos de internet que no entiendes","Usar siempre mayúsculas"],c:2,e:"Algunos comandos borran sin avisar; nunca pegues uno que no comprendas."}
+  ]
+},
+{
+  num:"09", level:"Medio", title:"Introducción a la programación",
+  body:`
+    <div class="term"><span class="k">🔑</span><div><b>Programar</b><span>Darle a la computadora una lista de instrucciones exactas y ordenadas para resolver un problema. La máquina es literal: hace exactamente lo que le dices.</span></div></div>
+    <div class="analogy"><b>Como explicarle a un robot</b> cómo hacer un sándwich: no basta «haz un sándwich», hay que detallar cada paso. Una secuencia de pasos así se llama <b>algoritmo</b>.</div>
+    <h3>Tres ideas presentes en casi todo lenguaje</h3>
+    <div class="term"><span class="k">📦</span><div><b>Variable</b><span>Una caja con nombre que guarda un valor para usarlo después. <code>edad = 25</code> guarda 25 en la caja «edad».</span></div></div>
+    <div class="term"><span class="k">🔀</span><div><b>Condicional</b><span>Una decisión: «SI pasa esto, ENTONCES haz aquello». Es lo que hace tu celular: SI la batería &lt; 20%, ENTONCES muestra la alerta roja.</span></div></div>
+    <div class="term"><span class="k">🔁</span><div><b>Bucle</b><span>Repetir un grupo de pasos varias veces sin escribirlos uno por uno. Por eso un programa procesa millones de datos en segundos.</span></div></div>
+    <div class="codeblock">edad = 20                          <span class="c">← variable</span>
+SI edad &gt;= 18 ENTONCES             <span class="c">← condicional</span>
+    mostrar "Puedes pasar"
+SI NO
+    mostrar "Eres menor de edad"
+REPETIR 3 veces                    <span class="c">← bucle</span>
+    mostrar "Disfruta el evento"</div>
+    <h3>Por dentro: ceros y unos</h3>
+    <p>La computadora, en el fondo, solo entiende <strong>encendido (1)</strong> y <strong>apagado (0)</strong>: el <strong>sistema binario</strong>. La letra «A» es <code>01000001</code>. Toda la belleza que ves se construye combinando miles de millones de esos interruptores a una velocidad enorme.</p>
+    <div class="callout tip"><b>Y así cerramos el círculo</b> · Volvimos al 0 y al 1 del principio. Eso es la computación: lógica simple, repetida y combinada, creando algo asombroso. 🚀</div>
+  `,
+  quiz:[
+    {q:"En programación, una «variable» es...",o:["Un error del programa","Una caja con nombre que guarda un valor","Un tipo de pantalla","Un virus"],c:1,e:"La variable guarda un dato bajo un nombre para reutilizarlo; su contenido puede cambiar."},
+    {q:"La estructura «SI... ENTONCES... SI NO...» es un...",o:["Bucle","Condicional","Algoritmo de cifrado","Periférico"],c:1,e:"Es un condicional: el programa decide qué hacer según si algo es verdadero o falso."},
+    {q:"¿Qué concepto sirve para REPETIR pasos varias veces?",o:["La variable","El condicional","El bucle","La salida"],c:2,e:"El bucle repite acciones; permite procesar grandes cantidades de datos rápidamente."},
+    {q:"Por dentro, la computadora solo entiende...",o:["Español e inglés","Ceros y unos (binario)","Fórmulas de Excel","Colores"],c:1,e:"Todo se representa con 0 (apagado) y 1 (encendido): el sistema binario."},
+    {q:"Una secuencia de pasos ordenados para resolver un problema se llama...",o:["Variable","Algoritmo","Byte","Dominio"],c:1,e:"Un algoritmo es esa lista de pasos en orden, como una receta."}
+  ]
+}
+];
+
+/* ============================================================
+   ESTADO Y RENDER
+   ============================================================ */
+const stage = document.getElementById('stage');
+const nav   = document.getElementById('nav');
+const ringFill = document.getElementById('ringFill');
+const ringTxt  = document.getElementById('ringTxt');
+const RING_LEN = 150.8;
+const STORAGE_KEY = 'curso-compu-progress';
+const saved = (()=>{ try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) } catch(e){ return null } })();
+const progress = LESSONS.map((_,i)=> saved && saved.progress && saved.progress[i] ? saved.progress[i] : {done:false, score:0});
+let current = saved && typeof saved.current==='number' && saved.current < LESSONS.length ? saved.current : 0;
+function saveProgress(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify({progress, current})) } catch(e){} }
+
+/* ---- navegación lateral ---- */
+LESSONS.forEach((l,i)=>{
+  const li = document.createElement('button');
+  li.className='nav-item'; li.type='button';
+  li.innerHTML=`<span class="nav-num">${l.num}</span><span class="nav-title">${l.title}</span><span class="nav-check">✓</span>`;
+  li.onclick=()=>loadLesson(i);
+  nav.appendChild(li);
+});
+
+function refreshNav(){
+  [...nav.children].forEach((el,i)=>{
+    el.classList.toggle('active', i===current);
+    el.classList.toggle('done', progress[i].done);
+  });
+  // En móvil (barra horizontal) centrar la lección activa a la vista
+  const active=nav.children[current];
+  if(active && nav.scrollWidth>nav.clientWidth){
+    const target=active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2;
+    nav.scrollTo({left:Math.max(0,target),behavior:'smooth'});
+  }
+}
+function refreshRing(){
+  const done = progress.filter(p=>p.done).length;
+  ringFill.style.strokeDashoffset = RING_LEN*(1-done/LESSONS.length);
+  ringTxt.textContent = `${done} / ${LESSONS.length}`;
+}
+
+/* ---- cargar una lección ---- */
+function loadLesson(i,noScroll){
+  current=i;
+  saveProgress();
+  const l=LESSONS[i];
+  stage.innerHTML='';
+  const art=document.createElement('article');
+  art.className='lesson';
+  art.innerHTML=`
+    <div class="lesson-tag">Lección ${l.num} · ${l.level}</div>
+    <h2>${l.title}</h2>
+    ${l.body}
+    <section class="quiz">
+      <div class="quiz-head">
+        <h3>Pon a prueba lo aprendido</h3>
+        <span class="quiz-sub" id="qcount">0 / 5 respondidas</span>
+      </div>
+      <div class="quiz-progress"><i id="qbar"></i></div>
+      <div id="qbox"></div>
+      <div class="result" id="result"></div>
+    </section>
+    <div class="pager">
+      <button class="btn btn-ghost btn-sm" id="prev">← Anterior</button>
+      <button class="btn btn-ghost btn-sm" id="next">Siguiente →</button>
+    </div>`;
+  stage.appendChild(art);
+  // Envolver tablas para que se desplacen en horizontal en pantallas pequeñas
+  art.querySelectorAll('table.ctable').forEach(t=>{
+    const w=document.createElement('div'); w.className='twrap';
+    t.parentNode.insertBefore(w,t); w.appendChild(t);
+  });
+  buildQuiz(l,i);
+  refreshNav();
+
+  const prev=art.querySelector('#prev'), next=art.querySelector('#next');
+  if(i===0) prev.disabled=true; else prev.onclick=()=>loadLesson(i-1);
+  if(i===LESSONS.length-1){next.textContent='Volver al inicio';next.onclick=()=>{document.querySelector('.hero').scrollIntoView({behavior:'smooth'});};}
+  else next.onclick=()=>loadLesson(i+1);
+
+  if(!noScroll) requestAnimationFrame(()=>scrollTop());
+}
+
+function scrollTop(){
+  const el=document.getElementById('app');
+  const y=el.getBoundingClientRect().top+window.pageYOffset;
+  window.scrollTo({top:y,left:0,behavior:'smooth'});
+}
+
+/* ---- construir el quiz ---- */
+function buildQuiz(l,idx){
+  const box=document.getElementById('qbox');
+  const state={answered:0, correct:0};
+  l.quiz.forEach((item,qi)=>{
+    const card=document.createElement('div');
+    card.className='q';
+    const opts=item.o.map((opt,oi)=>
+      `<button class="opt" data-o="${oi}"><span class="mark">${'ABCD'[oi]}</span><span>${opt}</span></button>`
+    ).join('');
+    card.innerHTML=`
+      <div class="q-num">PREGUNTA ${qi+1}</div>
+      <div class="q-text">${item.q}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain"></div>`;
+    const buttons=[...card.querySelectorAll('.opt')];
+    const explain=card.querySelector('.explain');
+    buttons.forEach(btn=>{
+      btn.onclick=()=>{
+        const chosen=+btn.dataset.o;
+        buttons.forEach(b=>{
+          b.disabled=true;
+          const bi=+b.dataset.o;
+          if(bi===item.c) b.classList.add('correct');
+          else if(bi===chosen) b.classList.add('wrong');
+          else b.classList.add('dim');
+        });
+        const ok=chosen===item.c;
+        if(ok) state.correct++;
+        explain.innerHTML=`<b>${ok?'¡Correcto!':'Respuesta correcta: '+'ABCD'[item.c]+'.'}</b> ${item.e}`;
+        explain.classList.add('show');
+        state.answered++;
+        document.getElementById('qcount').textContent=`${state.answered} / 5 respondidas`;
+        document.getElementById('qbar').style.width=(state.answered/5*100)+'%';
+        if(state.answered===5) finishQuiz(idx,state.correct,l);
+      };
+    });
+    box.appendChild(card);
+  });
+}
+
+/* ---- resultado final ---- */
+function finishQuiz(idx,score,l){
+  progress[idx]={done:true,score};
+  saveProgress();
+  refreshNav(); refreshRing();
+  const r=document.getElementById('result');
+  let msg;
+  if(score===5) msg='¡Perfecto! Dominas esta lección por completo.';
+  else if(score===4) msg='¡Muy bien! Casi impecable.';
+  else if(score===3) msg='Bien. Repasa los puntos que fallaste y reinténtalo.';
+  else msg='Vuelve a leer la lección con calma; lo tendrás en el próximo intento.';
+  r.innerHTML=`
+    <div class="score grad-text">${score}<small> / 5</small></div>
+    <div class="msg">${msg}</div>
+    <div class="result-actions">
+      <button class="btn btn-ghost btn-sm" onclick="loadLesson(${idx})">↻ Reintentar</button>
+      ${idx<LESSONS.length-1
+        ? `<button class="btn btn-primary btn-sm" onclick="loadLesson(${idx+1})">Siguiente lección →</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="document.querySelector('.hero').scrollIntoView({behavior:'smooth'})">¡Curso terminado! 🎉</button>`}
+    </div>`;
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---- arranque ---- */
+function start(){ loadLesson(current); }
+loadLesson(current,true);
+refreshRing();
+
+/* ============================================================
+   FONDO BINARIO DEL HERO (sutil, respeta reduced-motion)
+   ============================================================ */
+(function(){
+  const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const cv=document.getElementById('binary');
+  const ctx=cv.getContext('2d');
+  const hero=document.querySelector('.hero');
+  const isPhone=window.matchMedia('(max-width:560px)').matches;
+  let cols=[], W,H, lastW=0, fs=isPhone?13:16;
+  function size(){
+    W=cv.width=hero.offsetWidth; H=cv.height=hero.offsetHeight;
+    const n=Math.floor(W/fs);
+    cols=Array.from({length:n},()=>Math.random()*H/fs);
+  }
+  size(); lastW=W;
+  // En móvil, la barra de URL al hacer scroll cambia la altura y dispara "resize".
+  // Solo reconstruimos si cambia el ANCHO (giro de pantalla), no la altura.
+  let rt;
+  window.addEventListener('resize',()=>{
+    if(Math.abs(hero.offsetWidth-lastW)<2) return;
+    clearTimeout(rt); rt=setTimeout(()=>{ size(); lastW=W; },180);
+  });
+  function draw(){
+    ctx.fillStyle='rgba(6,13,26,.10)';
+    ctx.fillRect(0,0,W,H);
+    ctx.font=fs+'px "JetBrains Mono", monospace';
+    for(let i=0;i<cols.length;i++){
+      const ch=Math.random()<.5?'0':'1';
+      const x=i*fs, y=cols[i]*fs;
+      const grad=y/H;
+      ctx.fillStyle=`rgba(${56+grad*43},${189-grad*30},${248-grad*40},${.12+Math.random()*.18})`;
+      ctx.fillText(ch,x,y);
+      if(y>H && Math.random()>.975) cols[i]=0;
+      cols[i]+=0.35;
+    }
+  }
+  if(reduce){
+    // versión estática: una sola pasada tenue
+    ctx.font=fs+'px "JetBrains Mono", monospace';
+    for(let i=0;i<cols.length;i++){
+      for(let j=0;j<H/fs;j+=1){
+        if(Math.random()<.5) continue;
+        ctx.fillStyle='rgba(56,189,248,.06)';
+        ctx.fillText(Math.random()<.5?'0':'1', i*fs, j*fs);
+      }
+    }
+  }else{
+    let timer=setInterval(draw, isPhone?75:55);
+    // Pausar cuando el hero sale de la pantalla (ahorra batería en móvil)
+    if('IntersectionObserver' in window){
+      let running=true;
+      new IntersectionObserver(es=>{
+        const vis=es[0].isIntersecting;
+        if(vis && !running){ timer=setInterval(draw, isPhone?75:55); running=true; }
+        else if(!vis && running){ clearInterval(timer); running=false; }
+      },{threshold:0.01}).observe(hero);
+    }
+  }
+})();
+</script>
+</body>
+</html>
